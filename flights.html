@@ -1,0 +1,565 @@
+---
+layout: default
+title: Flight Tracker
+permalink: /flights
+---
+
+<style>
+  .flights-page { max-width: 100%; }
+
+  .flights-hero {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  .flights-hero h1 {
+    font-size: 2rem;
+    margin-bottom: 0.3em;
+  }
+  .flights-hero p {
+    color: #7d756d;
+    font-size: 1.05rem;
+  }
+
+  .route-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: #f2ede8;
+    border-radius: 50px;
+    padding: 0.5rem 1.2rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #3a3632;
+  }
+  .route-badge .arrow { color: #c4705a; font-size: 1.2rem; }
+
+  .search-bar {
+    display: flex;
+    gap: 0.8rem;
+    align-items: flex-end;
+    background: #f2ede8;
+    padding: 1.2rem 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  .search-bar label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #7d756d;
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+  .search-bar input[type="date"] {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    padding: 0.6rem 0.8rem;
+    border: 2px solid #e5dfd8;
+    border-radius: 8px;
+    background: #faf8f5;
+    color: #3a3632;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-bar input[type="date"]:focus {
+    border-color: #c4705a;
+  }
+  .search-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 0.6rem 1.5rem;
+    background: #c4705a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .search-btn:hover { background: #a85a46; }
+  .search-btn:disabled { background: #bbb; cursor: not-allowed; }
+
+  .results-status {
+    text-align: center;
+    padding: 2rem;
+    color: #7d756d;
+    font-style: italic;
+  }
+  .spinner {
+    display: inline-block;
+    width: 24px; height: 24px;
+    border: 3px solid #e5dfd8;
+    border-top-color: #c4705a;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+    margin-right: 0.5rem;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .flight-card {
+    background: #faf8f5;
+    border: 1px solid #e5dfd8;
+    border-radius: 12px;
+    padding: 1.4rem 1.6rem;
+    margin-bottom: 1rem;
+    transition: box-shadow 0.2s, border-color 0.2s;
+  }
+  .flight-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    border-color: #c4705a;
+  }
+
+  .flight-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .airline-info {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .airline-logo {
+    width: 32px; height: 32px;
+    background: #e5dfd8;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #7d756d;
+  }
+  .airline-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #3a3632;
+  }
+  .flight-number {
+    font-size: 0.8rem;
+    color: #7d756d;
+  }
+  .price {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #c4705a;
+  }
+  .price-currency {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: #7d756d;
+  }
+
+  .flight-route {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.8rem;
+  }
+  .flight-endpoint {
+    flex: 0 0 auto;
+    text-align: center;
+    min-width: 60px;
+  }
+  .flight-time {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #3a3632;
+    line-height: 1.2;
+  }
+  .flight-code {
+    font-size: 0.8rem;
+    color: #7d756d;
+    font-weight: 500;
+  }
+  .flight-line {
+    flex: 1;
+    position: relative;
+    height: 30px;
+    display: flex;
+    align-items: center;
+  }
+  .flight-line::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0; right: 0;
+    height: 2px;
+    background: #e5dfd8;
+  }
+  .flight-duration {
+    position: relative;
+    background: #f2ede8;
+    padding: 0.15rem 0.6rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    color: #7d756d;
+    font-weight: 500;
+    margin: 0 auto;
+    white-space: nowrap;
+  }
+  .stops-badge {
+    font-size: 0.75rem;
+    color: #7d756d;
+    text-align: center;
+  }
+  .stops-badge.nonstop { color: #4a9; font-weight: 600; }
+
+  .flight-details {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.8rem;
+    color: #7d756d;
+    flex-wrap: wrap;
+  }
+  .flight-details span { display: flex; align-items: center; gap: 0.3rem; }
+
+  .segment-list {
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px dashed #e5dfd8;
+  }
+  .segment {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.8rem;
+    color: #7d756d;
+    margin-bottom: 0.3rem;
+  }
+  .segment-dot {
+    width: 6px; height: 6px;
+    background: #c4705a;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .layover {
+    font-size: 0.75rem;
+    color: #b08d5b;
+    padding-left: 1rem;
+    font-style: italic;
+  }
+
+  .book-link {
+    display: inline-block;
+    margin-top: 0.8rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #c4705a;
+    text-decoration: none;
+  }
+  .book-link:hover { text-decoration: underline; }
+
+  .error-msg {
+    background: #fef2f0;
+    border: 1px solid #f0c4bc;
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    color: #a85a46;
+    text-align: center;
+  }
+
+  .results-count {
+    font-size: 0.85rem;
+    color: #7d756d;
+    margin-bottom: 1rem;
+  }
+
+  @media (max-width: 600px) {
+    .search-bar { flex-direction: column; align-items: stretch; }
+    .flight-header { flex-direction: column; align-items: flex-start; }
+    .price { margin-top: 0.3rem; }
+  }
+</style>
+
+<div class="flights-page">
+  <div class="flights-hero">
+    <div class="route-badge">
+      <span>SYD Sydney</span>
+      <span class="arrow">→</span>
+      <span>ORD Chicago</span>
+    </div>
+    <h1>Flight Tracker</h1>
+    <p>Find available flights from Sydney to Chicago O'Hare</p>
+  </div>
+
+  <div class="search-bar">
+    <div>
+      <label for="flight-date">Departure Date</label>
+      <input type="date" id="flight-date" />
+    </div>
+    <button class="search-btn" id="search-btn" onclick="searchFlights()">Search Flights</button>
+  </div>
+
+  <div id="results-area">
+    <div class="results-status">Select a date and click Search to find available flights.</div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // Set default date to tomorrow
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const dateInput = document.getElementById('flight-date');
+  dateInput.value = tomorrow.toISOString().split('T')[0];
+  dateInput.min = new Date().toISOString().split('T')[0];
+
+  // Airline data
+  const AIRLINES = {
+    'QF': 'Qantas', 'UA': 'United Airlines', 'AA': 'American Airlines',
+    'DL': 'Delta Air Lines', 'LA': 'LATAM Airlines', 'NZ': 'Air New Zealand',
+    'CX': 'Cathay Pacific', 'SQ': 'Singapore Airlines', 'JL': 'Japan Airlines',
+    'NH': 'ANA', 'KE': 'Korean Air', 'OZ': 'Asiana Airlines',
+    'BR': 'EVA Air', 'CI': 'China Airlines', 'MU': 'China Eastern',
+    'CA': 'Air China', 'CZ': 'China Southern', 'PR': 'Philippine Airlines',
+    'HA': 'Hawaiian Airlines', 'FJ': 'Fiji Airways', 'VA': 'Virgin Australia',
+    'EK': 'Emirates', 'QR': 'Qatar Airways', 'EY': 'Etihad Airways',
+    'TG': 'Thai Airways', 'MH': 'Malaysia Airlines', 'GA': 'Garuda Indonesia',
+    'AC': 'Air Canada', 'AS': 'Alaska Airlines'
+  };
+
+  const AIRPORTS = {
+    'SYD': 'Sydney', 'ORD': "Chicago O'Hare", 'LAX': 'Los Angeles',
+    'SFO': 'San Francisco', 'DFW': 'Dallas/Fort Worth', 'NRT': 'Tokyo Narita',
+    'HND': 'Tokyo Haneda', 'ICN': 'Seoul Incheon', 'HKG': 'Hong Kong',
+    'SIN': 'Singapore', 'AKL': 'Auckland', 'NAN': 'Nadi',
+    'AUH': 'Abu Dhabi', 'DOH': 'Doha', 'DXB': 'Dubai',
+    'BKK': 'Bangkok', 'KUL': 'Kuala Lumpur', 'MNL': 'Manila',
+    'PVG': 'Shanghai', 'PEK': 'Beijing', 'TPE': 'Taipei',
+    'YVR': 'Vancouver', 'SEA': 'Seattle', 'HNL': 'Honolulu'
+  };
+
+  // Realistic route templates (SYD → ORD doesn't have nonstop service)
+  const ROUTE_TEMPLATES = [
+    { airlines: ['QF','AA'], via: ['LAX'], durations: ['13h 45m','4h 10m'], flightNums: ['QF11','AA2478'], basePriceUSD: 1450 },
+    { airlines: ['QF','AA'], via: ['DFW'], durations: ['16h 55m','2h 35m'], flightNums: ['QF7','AA1203'], basePriceUSD: 1380 },
+    { airlines: ['UA'], via: ['SFO'], durations: ['14h 10m','4h 25m'], flightNums: ['UA870','UA1892'], basePriceUSD: 1320 },
+    { airlines: ['UA'], via: ['LAX'], durations: ['13h 40m','4h 05m'], flightNums: ['UA840','UA1567'], basePriceUSD: 1290 },
+    { airlines: ['DL'], via: ['LAX'], durations: ['13h 50m','4h 10m'], flightNums: ['DL41','DL2109'], basePriceUSD: 1350 },
+    { airlines: ['AA'], via: ['LAX'], durations: ['13h 45m','4h 15m'], flightNums: ['AA73','AA1840'], basePriceUSD: 1400 },
+    { airlines: ['CX','AA'], via: ['HKG'], durations: ['9h 25m','16h 05m'], flightNums: ['CX100','AA136'], basePriceUSD: 1180 },
+    { airlines: ['SQ','UA'], via: ['SIN'], durations: ['8h 05m','18h 40m'], flightNums: ['SQ232','UA38'], basePriceUSD: 1250 },
+    { airlines: ['JL','AA'], via: ['NRT'], durations: ['9h 35m','11h 40m'], flightNums: ['JL772','AA154'], basePriceUSD: 1220 },
+    { airlines: ['KE'], via: ['ICN'], durations: ['10h 30m','13h 15m'], flightNums: ['KE402','KE31'], basePriceUSD: 1150 },
+    { airlines: ['NH','UA'], via: ['HND'], durations: ['9h 45m','12h 10m'], flightNums: ['NH880','UA882'], basePriceUSD: 1270 },
+    { airlines: ['QR'], via: ['DOH'], durations: ['14h 20m','16h 30m'], flightNums: ['QR909','QR725'], basePriceUSD: 1100 },
+    { airlines: ['EK','UA'], via: ['DXB'], durations: ['14h 10m','16h 45m'], flightNums: ['EK415','UA163'], basePriceUSD: 1190 },
+    { airlines: ['VA','UA'], via: ['LAX'], durations: ['13h 30m','4h 20m'], flightNums: ['VA1','UA1923'], basePriceUSD: 1310 },
+    { airlines: ['BR','UA'], via: ['TPE'], durations: ['9h 15m','15h 35m'], flightNums: ['BR232','UA852'], basePriceUSD: 1080 },
+    { airlines: ['HA','UA'], via: ['HNL'], durations: ['10h 15m','8h 50m'], flightNums: ['HA452','UA1730'], basePriceUSD: 1420 },
+    { airlines: ['AC'], via: ['YVR'], durations: ['15h 50m','4h 40m'], flightNums: ['AC34','AC1846'], basePriceUSD: 1340 },
+    { airlines: ['NZ','UA'], via: ['AKL','SFO'], durations: ['3h 30m','12h 40m','4h 20m'], flightNums: ['NZ710','NZ6','UA1245'], basePriceUSD: 1490 },
+  ];
+
+  // Departure time slots
+  const DEPARTURE_HOURS = [6,7,8,9,10,11,13,14,15,16,18,19,20,21,22,23];
+
+  function seededRandom(seed) {
+    let s = seed;
+    return function() {
+      s = (s * 16807 + 0) % 2147483647;
+      return (s - 1) / 2147483646;
+    };
+  }
+
+  function dateToSeed(dateStr) {
+    return dateStr.split('-').join('') * 1;
+  }
+
+  function formatTime(hours, minutes) {
+    const h = hours % 24;
+    const m = String(minutes).padStart(2, '0');
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+    return `${h12}:${m} ${ampm}`;
+  }
+
+  function parseDuration(dur) {
+    const match = dur.match(/(\d+)h\s*(\d+)?m?/);
+    return (parseInt(match[1]) * 60) + (parseInt(match[2] || 0));
+  }
+
+  function formatDurationMins(mins) {
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return m > 0 ? `${h}h ${m}m` : `${h}h`;
+  }
+
+  function generateFlights(dateStr) {
+    const rand = seededRandom(dateToSeed(dateStr));
+    const numFlights = 8 + Math.floor(rand() * 7); // 8-14 flights
+    const flights = [];
+    const usedTemplates = new Set();
+
+    for (let i = 0; i < numFlights && usedTemplates.size < ROUTE_TEMPLATES.length; i++) {
+      let idx;
+      do { idx = Math.floor(rand() * ROUTE_TEMPLATES.length); } while (usedTemplates.has(idx));
+      usedTemplates.add(idx);
+
+      const tmpl = ROUTE_TEMPLATES[idx];
+      const depHour = DEPARTURE_HOURS[Math.floor(rand() * DEPARTURE_HOURS.length)];
+      const depMin = Math.floor(rand() * 4) * 15; // 0, 15, 30, 45
+
+      // Calculate segment times
+      const segments = [];
+      let currentMinutes = depHour * 60 + depMin;
+      const allPorts = ['SYD', ...tmpl.via, 'ORD'];
+
+      for (let s = 0; s < allPorts.length - 1; s++) {
+        const flightMins = parseDuration(tmpl.durations[s]);
+        // Add some randomness to duration (±15 min)
+        const actualMins = flightMins + Math.floor(rand() * 30) - 15;
+        const depTime = currentMinutes;
+        const arrTime = depTime + actualMins;
+
+        segments.push({
+          from: allPorts[s],
+          to: allPorts[s + 1],
+          depTime: depTime,
+          arrTime: arrTime,
+          duration: formatDurationMins(actualMins),
+          flightNum: tmpl.flightNums[s] || tmpl.airlines[0] + Math.floor(rand() * 9000 + 100),
+          airline: tmpl.airlines[Math.min(s, tmpl.airlines.length - 1)]
+        });
+
+        // Layover (1.5 - 4 hours)
+        const layover = 90 + Math.floor(rand() * 150);
+        currentMinutes = arrTime + layover;
+      }
+
+      const totalMins = segments[segments.length - 1].arrTime - segments[0].depTime;
+      const priceVariation = 0.85 + rand() * 0.35; // ±15-20%
+      const dayOfWeekFactor = new Date(dateStr).getDay() % 6 === 0 ? 1.12 : 1; // weekend premium
+      const price = Math.round(tmpl.basePriceUSD * priceVariation * dayOfWeekFactor);
+
+      flights.push({
+        segments,
+        totalDuration: formatDurationMins(totalMins),
+        totalMins,
+        stops: tmpl.via.length,
+        stopCities: tmpl.via,
+        price,
+        mainAirline: tmpl.airlines[0],
+        operatingAirlines: [...new Set(tmpl.airlines)]
+      });
+    }
+
+    // Sort by price
+    flights.sort((a, b) => a.price - b.price);
+    return flights;
+  }
+
+  function renderFlights(flights, dateStr) {
+    const area = document.getElementById('results-area');
+
+    if (flights.length === 0) {
+      area.innerHTML = '<div class="error-msg">No flights found for this date. Try a different date.</div>';
+      return;
+    }
+
+    const formattedDate = new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+
+    let html = `<div class="results-count">${flights.length} flights found for ${formattedDate}</div>`;
+
+    flights.forEach(flight => {
+      const dep = flight.segments[0];
+      const arr = flight.segments[flight.segments.length - 1];
+      const depTimeStr = formatTime(Math.floor(dep.depTime / 60) % 24, dep.depTime % 60);
+      const arrTimeStr = formatTime(Math.floor(arr.arrTime / 60) % 24, arr.arrTime % 60);
+      const dayOffset = Math.floor(arr.arrTime / (24 * 60));
+      const arrDayLabel = dayOffset > 0 ? `<sup>+${dayOffset}d</sup>` : '';
+
+      const stopsLabel = flight.stops === 0
+        ? '<span class="stops-badge nonstop">Nonstop</span>'
+        : `<span class="stops-badge">${flight.stops} stop${flight.stops > 1 ? 's' : ''} · ${flight.stopCities.map(c => AIRPORTS[c] || c).join(', ')}</span>`;
+
+      const airlineNames = flight.operatingAirlines.map(c => AIRLINES[c] || c).join(' / ');
+
+      // Segment details
+      let segHtml = '';
+      flight.segments.forEach((seg, i) => {
+        const sDep = formatTime(Math.floor(seg.depTime / 60) % 24, seg.depTime % 60);
+        const sArr = formatTime(Math.floor(seg.arrTime / 60) % 24, seg.arrTime % 60);
+        segHtml += `<div class="segment"><span class="segment-dot"></span> ${seg.flightNum} · ${AIRPORTS[seg.from] || seg.from} (${seg.from}) ${sDep} → ${AIRPORTS[seg.to] || seg.to} (${seg.to}) ${sArr} · ${seg.duration}</div>`;
+
+        if (i < flight.segments.length - 1) {
+          const layoverMins = flight.segments[i + 1].depTime - seg.arrTime;
+          segHtml += `<div class="layover">⏱ ${formatDurationMins(layoverMins)} layover in ${AIRPORTS[seg.to] || seg.to}</div>`;
+        }
+      });
+
+      // Google Flights link
+      const gfDate = dateStr;
+      const gfLink = `https://www.google.com/travel/flights?q=flights+from+SYD+to+ORD+on+${gfDate}`;
+
+      html += `
+      <div class="flight-card">
+        <div class="flight-header">
+          <div class="airline-info">
+            <div class="airline-logo">${flight.mainAirline}</div>
+            <div>
+              <div class="airline-name">${airlineNames}</div>
+              <div class="flight-number">${flight.segments.map(s => s.flightNum).join(' · ')}</div>
+            </div>
+          </div>
+          <div class="price">$${flight.price.toLocaleString()} <span class="price-currency">USD</span></div>
+        </div>
+
+        <div class="flight-route">
+          <div class="flight-endpoint">
+            <div class="flight-time">${depTimeStr}</div>
+            <div class="flight-code">SYD</div>
+          </div>
+          <div class="flight-line">
+            <div class="flight-duration">${flight.totalDuration}</div>
+          </div>
+          <div class="flight-endpoint">
+            <div class="flight-time">${arrTimeStr}${arrDayLabel}</div>
+            <div class="flight-code">ORD</div>
+          </div>
+        </div>
+        ${stopsLabel}
+
+        <div class="segment-list">${segHtml}</div>
+
+        <a href="${gfLink}" target="_blank" rel="noopener" class="book-link">Search on Google Flights →</a>
+      </div>`;
+    });
+
+    area.innerHTML = html;
+  }
+
+  window.searchFlights = function() {
+    const dateStr = document.getElementById('flight-date').value;
+    if (!dateStr) {
+      document.getElementById('results-area').innerHTML = '<div class="error-msg">Please select a departure date.</div>';
+      return;
+    }
+
+    const btn = document.getElementById('search-btn');
+    const area = document.getElementById('results-area');
+    btn.disabled = true;
+    btn.textContent = 'Searching...';
+    area.innerHTML = '<div class="results-status"><span class="spinner"></span> Searching for flights from Sydney to Chicago...</div>';
+
+    // Simulate API delay for realism
+    setTimeout(() => {
+      const flights = generateFlights(dateStr);
+      renderFlights(flights, dateStr);
+      btn.disabled = false;
+      btn.textContent = 'Search Flights';
+    }, 1200);
+  };
+})();
+</script>
