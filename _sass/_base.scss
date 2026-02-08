@@ -1,0 +1,144 @@
+// ============================================
+// Base styles — typography, resets, elements
+// ============================================
+
+// Colors
+$color-bg: #faf8f5;
+$color-bg-alt: #f2ede8;
+$color-text: #3a3632;
+$color-text-light: #7d756d;
+$color-accent: #c4705a;
+$color-accent-hover: #a85a46;
+$color-border: #e5dfd8;
+$color-code-bg: #f5f0eb;
+
+// Fonts
+$font-heading: 'Playfair Display', Georgia, serif;
+$font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+// Reset
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 18px;
+  scroll-behavior: smooth;
+
+  @media (max-width: 600px) {
+    font-size: 16px;
+  }
+}
+
+body {
+  font-family: $font-body;
+  font-weight: 400;
+  line-height: 1.7;
+  color: $color-text;
+  background-color: $color-bg;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Headings
+h1, h2, h3, h4 {
+  font-family: $font-heading;
+  font-weight: 700;
+  line-height: 1.3;
+  color: $color-text;
+}
+
+h1 { font-size: 2.4rem; margin-bottom: 0.5em; }
+h2 { font-size: 1.8rem; margin-top: 1.8em; margin-bottom: 0.5em; }
+h3 { font-size: 1.3rem; margin-top: 1.5em; margin-bottom: 0.4em; }
+
+// Links
+a {
+  color: $color-accent;
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: $color-accent-hover;
+  }
+}
+
+// Paragraphs
+p {
+  margin-bottom: 1.4em;
+}
+
+// Images
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin: 1.5em 0;
+}
+
+// Blockquotes
+blockquote {
+  border-left: 3px solid $color-accent;
+  padding: 0.8em 1.2em;
+  margin: 1.5em 0;
+  background: $color-bg-alt;
+  border-radius: 0 6px 6px 0;
+  font-style: italic;
+  color: $color-text-light;
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// Code
+code {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.88em;
+  background: $color-code-bg;
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+}
+
+pre {
+  background: $color-text;
+  color: #f0ebe5;
+  padding: 1.2em 1.5em;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 1.5em 0;
+  line-height: 1.5;
+
+  code {
+    background: none;
+    padding: 0;
+    color: inherit;
+    font-size: 0.85rem;
+  }
+}
+
+// Horizontal rule
+hr {
+  border: none;
+  height: 1px;
+  background: $color-border;
+  margin: 2.5em 0;
+}
+
+// Lists
+ul, ol {
+  margin-bottom: 1.4em;
+  padding-left: 1.5em;
+}
+
+li {
+  margin-bottom: 0.3em;
+}
+
+// Animation
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
