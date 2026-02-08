@@ -1,0 +1,30 @@
+# Site settings
+title: "Mark's Journal"
+description: "Thoughts, stories, and creative musings."
+author: "Mark"
+url: "https://markrudrum.github.io"
+baseurl: "/marks-journal"
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+permalink: /:year/:month/:day/:title/
+
+# Sass
+sass:
+  sass_dir: _sass
+  style: compressed
+
+# Plugins (GitHub Pages compatible)
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+
+# Excerpt settings
+excerpt_separator: <!--more-->
+
+# Exclude from build
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
