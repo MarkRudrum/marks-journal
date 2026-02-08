@@ -1,0 +1,22 @@
+---
+layout: default
+title: Home
+---
+
+<p class="page-intro">A place for thoughts, stories, and things I find interesting.</p>
+
+<ul class="post-list">
+  {% for post in site.posts %}
+  <li class="post-list-item">
+    <h2 class="post-list-title">
+      <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+    </h2>
+    <div class="post-list-meta">
+      <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%B %-d, %Y" }}</time>
+    </div>
+    <div class="post-list-excerpt">
+      {{ post.excerpt }}
+    </div>
+  </li>
+  {% endfor %}
+</ul>
